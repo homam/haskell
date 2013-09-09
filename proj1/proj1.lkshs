@@ -1,0 +1,18 @@
+Version of session file format:
+               1
+Time of storage:
+               "Sun Mar 10 22:13:01 GST 2013"
+Layout:        VerticalP (TerminalP {paneGroups = fromList [], paneTabs = Just TopP, currentPage = 0, detachedId = Nothing, detachedSize = Nothing}) (HorizontalP (TerminalP {paneGroups = fromList [("Browser",HorizontalP (TerminalP {paneGroups = fromList [], paneTabs = Nothing, currentPage = 0, detachedId = Nothing, detachedSize = Nothing}) (HorizontalP (TerminalP {paneGroups = fromList [], paneTabs = Nothing, currentPage = 0, detachedId = Nothing, detachedSize = Nothing}) (TerminalP {paneGroups = fromList [], paneTabs = Nothing, currentPage = 0, detachedId = Nothing, detachedSize = Nothing}) 276) 191)], paneTabs = Just BottomP, currentPage = 0, detachedId = Nothing, detachedSize = Nothing}) (TerminalP {paneGroups = fromList [], paneTabs = Nothing, currentPage = 0, detachedId = Nothing, detachedSize = Nothing}) 671) 649
+Population:    [(Just (ErrorsSt ErrorsState),[SplitP RightP,SplitP TopP]),(Just (FilesSt FilesState),[SplitP RightP,SplitP TopP]),(Just (InfoSt (InfoState Nothing)),[SplitP RightP,SplitP TopP,GroupP "Browser",SplitP BottomP,SplitP BottomP]),(Just (LogSt LogState),[SplitP RightP,SplitP BottomP]),(Just (BufferSt (BufferState "/Users/Homam/dev/haskell/proj1/src/Main.hs" 511)),[SplitP LeftP]),(Just (ModulesSt (ModulesState 200 (SystemScope,False) (Nothing,Nothing) (ExpanderState {packageExp = ([],[]), packageExpNoBlack = ([],[]), packageDExp = ([],[]), packageDExpNoBlack = ([],[]), workspaceExp = ([],[]), workspaceExpNoBlack = ([],[]), workspaceDExp = ([],[]), workspaceDExpNoBlack = ([],[]), systemExp = ([],[]), systemExpNoBlack = ([],[])}))),[SplitP RightP,SplitP TopP,GroupP "Browser",SplitP BottomP,SplitP TopP]),(Just (WorkspaceSt WorkspaceState),[SplitP RightP,SplitP TopP,GroupP "Browser",SplitP TopP]),(Just (BufferSt (BufferState "/Users/Homam/dev/haskell/practice1.hs" 1067)),[SplitP LeftP])]
+Window size:   (953,1012)
+Completion size:
+               (750,400)
+Workspace:     Just "/Users/Homam/dev/haskell/proj1/proj1.lkshw"
+Active pane:   Just "Main.hs"
+Toolbar visible:
+               True
+FindbarState:  (True,FindState {entryStr = "", entryHist = [""], replaceStr = "", replaceHist = [], caseSensitive = False, entireWord = False, wrapAround = False, regex = False, lineNr = 1})
+Recently opened files:
+               ["/Users/Homam/dev/haskell/leksah2/src/Main.hs","/Users/Homam/dev/haskell/leksah1/pk/src/Main.hs","/Users/Homam/.leksah-0.12/leksah-welcome/src/Main.hs"]
+Recently opened workspaces:
+               ["/Users/Homam/dev/haskell/leksah1/leksah1.lkshw","/Users/Homam/leksah.lkshw"]

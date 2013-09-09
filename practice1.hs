@@ -85,4 +85,72 @@ quicksort' (x:xs)   = let   left    = [y | y <- xs, y <x]
 
 
 -- higher order functions
+zipWith' :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith' _ _ [] = []
+zipWith' _ [] _ = []
+zipWith' f (x:xs) (y:ys) = [f x y] ++ zipWith' f xs ys
+-- test:    zipWith' (\a b -> (a,b)) [1..] ['a'..'z']
 
+
+
+
+-- pi
+
+points r = [[x,y] | x <- [0..r], y <- [0..r]]
+incircle r [x,y] = x*x + y*y <= r*r
+--pi r = 4 * length (filter (incircle r) (points r)) `div` length (points r)
+pi'' r  p = p * 4 * (length ([(x,y) | x<- [0..r], y <- [0..r], x*x+y*y <= r*r])) `div` (r*r)
+
+pi' r p = -4 * (((length [(x,y) | x<- [0..r], y <- [0..r], x*x+y*y > r*r]) * (p) `div` (r*r)) - (p))
+
+
+
+--count :: [(a,b)] => Num
+
+
+
+abs' x
+ | x >= 0    = x
+ | otherwise = -x
+
+
+-- making and funciton
+
+and' :: Bool -> Bool -> Bool
+and' True True = True
+and' _ _ = False
+
+-- if first agument is true, then return second arg, dont bother evaluating second arg:
+and'' :: Bool -> Bool -> Bool
+and'' True b  = b
+and'' False _ = False
+
+-- using gaurds
+and''' :: Bool -> Bool -> Bool
+and''' a b
+ | a = b
+ | otherwise = False
+
+--
+
+fFalse :: Bool -> [Bool]
+fFalse _ = []
+
+--
+
+-- lambda expression
+
+add = \x -> \y -> x+y
+
+--
+
+pairs as = zip as (tail as) -- [1,2,3,4] [(1,2)(2,3)(3,4)]
+
+sorted as = and [x <= y | (x,y) <- pairs as]
+
+---
+
+isLower' c = elem c ['a'..'z']
+
+lowers :: String -> Int
+lowers cs = length [c | c <- cs, isLower' c]
