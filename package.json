@@ -1,0 +1,8 @@
+{
+  "name": "practice-haskell",
+  "version": "1.0.0",
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-contrib-watch": "~0.5.3"
+  }
+}
