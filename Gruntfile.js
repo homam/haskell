@@ -33,9 +33,9 @@ module.exports = function(grunt) {
   grunt.event.on('watch', function(action, filepath, target) {
     grunt.log.writeln('*** WATCH ***')
     grunt.log.writeln(target + ': ' + filepath + ' has ' + action);
-    if('input.hs' == filepath) {
-      exec("ghc --make input.hs");
-    }
+    //if('input.hs' == filepath) {
+      exec("ghc --make " + filepath);
+    //}
   });
 
   grunt.loadNpmTasks('grunt-contrib-watch');
