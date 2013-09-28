@@ -2,7 +2,7 @@ main = do
 	contents <- getContents
 	--print $ length $ lines contents
 	putStr $ shortLinesOnly contents
-	putStr "-----bye-----\n"
+	putStr "-----bye-----"
 
 shortLinesOnly =
 	unlines . filter ((<30) . length) . lines
