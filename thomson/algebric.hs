@@ -56,12 +56,14 @@ data NTree = NilT |
 instance Show NTree where
 	show = (showNTreeDepth 0) 
 
--- Node 12 (Node 14 NilT NilT) (Node 15 (Node 17 NilT (Node 18 NilT NilT))  NilT)
+-- Node 12 (Node 14 NilT NilT) (Node 15 (Node 17 NilT (Node 18 (Node 19 NilT NilT) (Node 20 NilT NilT)))  NilT)
+-- Node 12 (Node 14 NilT NilT) (Node 15 (Node 17 NilT (Node 18 (SNode 19) (SNode 20)))  NilT)
 
-showNTree (NilT) = "."
-showNTree (Node value left right) = (show value) ++ "\n\t" ++ (showNTree left) ++ "\n\t" ++ (showNTree right)
+showNTreeLeaf :: Int -> NTree -> String
+showNTreeLeaf depth NilT = ""
+showNTreeLeaf depth leaf = "\n" ++ ((++ "|--") $ concat $ replicate (depth) "   ") ++ (showNTreeDepth (depth+1) leaf)
 
-showNTreeDepth depth (NilT) = "."
+showNTreeDepth depth (NilT) = "Nill!!"
 showNTreeDepth depth (Node value left right) =
-	(show value) ++ "\n" ++ (replicate (depth+1) '\t') ++ (showNTreeDepth (depth+1) left) ++ "\n" ++ (replicate (depth+1) '\t') ++ (showNTreeDepth (depth+1) right)
+	"|" ++ (show value) ++ (showNTreeLeaf depth left) ++ (showNTreeLeaf depth right)
 
