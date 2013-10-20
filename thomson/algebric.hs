@@ -51,19 +51,37 @@ showExpr (Sub e1 e2) = "(" ++ (showExpr e1) ++ ") - (" ++ (showExpr e2) ++ ")"
 -- trees
 
 data NTree = NilT |
-			 Node Int NTree NTree
+			 NNode Int NTree NTree
 
 instance Show NTree where
 	show = (showNTreeDepth 0) 
 
--- Node 12 (Node 14 NilT NilT) (Node 15 (Node 17 NilT (Node 18 (Node 19 NilT NilT) (Node 20 NilT NilT)))  NilT)
--- Node 12 (Node 14 NilT NilT) (Node 15 (Node 17 NilT (Node 18 (SNode 19) (SNode 20)))  NilT)
+-- NNode 12 (NNode 14 NilT NilT) (NNode 15 (NNode 17 NilT (NNode 18 (NNode 19 NilT NilT) (NNode 20 NilT NilT)))  NilT)
+-- NNode 12 (NNode 14 NilT NilT) (NNode 15 (NNode 17 NilT (NNode 18 (SNNode 19) (SNNode 20)))  NilT)
 
 showNTreeLeaf :: Int -> NTree -> String
 showNTreeLeaf depth NilT = ""
 showNTreeLeaf depth leaf = "\n" ++ ((++ "|--") $ concat $ replicate (depth) "   ") ++ (showNTreeDepth (depth+1) leaf)
 
 showNTreeDepth depth (NilT) = "Nill!!"
-showNTreeDepth depth (Node value left right) =
+showNTreeDepth depth (NNode value left right) =
 	"|" ++ (show value) ++ (showNTreeLeaf depth left) ++ (showNTreeLeaf depth right)
 
+
+-- polymorphuc tree
+
+data Tree a = Nil |
+			  Node a (Tree a) (Tree a)
+			  deriving (Eq, Ord, Show, Read)
+
+depth :: Tree a -> Int
+depth Nil = 0
+depth (Node n left right) = 1 + max (depth left) (depth right)
+
+collapse :: Tree a -> [a]
+collapse Nil = []
+collapse (Node n left right) = (collapse left) ++ [n] ++ (collapse right)
+
+mapTree :: (a -> b) -> Tree a -> Tree b --  (mapTree (\a -> 2*a)) $ Node 2 (Node 4 Nil Nil) Nil
+mapTree f Nil = Nil
+mapTree f (Node n left right) = Node (f n) (mapTree f left) (mapTree f right)
