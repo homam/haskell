@@ -11,7 +11,7 @@ main = do
  			main
  		else do
 			putStrLn "goodbye!"
-			a <- readProcess "cat" ["/Users/Homam/dev/haskell/hello.hs"] []
+			a <- readProcess "cat" ["hello.hs"] []
 			print a
 			a <- readProcess "ls" [] []
 			let files = lines a
