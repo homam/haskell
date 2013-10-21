@@ -85,3 +85,26 @@ collapse (Node n left right) = (collapse left) ++ [n] ++ (collapse right)
 mapTree :: (a -> b) -> Tree a -> Tree b --  (mapTree (\a -> 2*a)) $ Node 2 (Node 4 Nil Nil) Nil
 mapTree f Nil = Nil
 mapTree f (Node n left right) = Node (f n) (mapTree f left) (mapTree f right)
+
+
+----
+
+
+data MyMaybe a = MyNothing | MyJust a
+			   deriving (Show, Read, Eq, Ord)
+
+mydiv :: Int -> Int -> MyMaybe Int
+mydiv x y
+	| (y /= 0)	= MyJust (x `div` y)
+	| otherwise	= MyNothing
+
+mapMyMaybe :: (a -> b) -> MyMaybe a -> MyMaybe b
+mapMyMaybe f MyNothing	= MyNothing
+mapMyMaybe f (MyJust x)	=  MyJust (f x)
+
+myMaybe ::  b -> (a -> b) -> MyMaybe a -> b
+myMaybe x f MyNothing = x
+myMaybe x f (MyJust y) = (f y)
+
+-- myMaybe 0 id (mapMyMaybe (2*) (MyJust 12))
+-- myMaybe 0 id $ mapMyMaybe (2*) (12 `mydiv` 0)
