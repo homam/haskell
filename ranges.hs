@@ -1,3 +1,11 @@
+module Range (
+	Range,
+	lenR,
+	union,
+	intersection,
+	intersectionFraction
+	) where
+
 data Range a = Range a a deriving (Read)
 
 range :: Ord a => a -> a -> Range a
@@ -5,7 +13,6 @@ range x y = Range (min x y) (max x y)
 
 instance Show a => Show (Range a) where
 	show (Range x1 x2) = "(" ++ (show x1) ++ ", " ++ (show x2) ++ ")"
-
 
 instance Eq a => Eq (Range a) where
 	(Range x1 x2) == (Range y1 y2) = x1 == y1 && x2 == y2
