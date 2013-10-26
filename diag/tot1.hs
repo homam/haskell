@@ -1,3 +1,6 @@
+-- example:
+-- /tot1 -o c.svg --width=800 -a="(0.024, 3000)" -b="(0.03, 3000)"
+
 {-# XNoMonomorphismRestriction #-}
 {-# LANGUAGE DeriveDataTypeable, CPP #-}
 
@@ -25,56 +28,33 @@ c1 = circle 0.5 -- # translate (r2 (0, 0)) # showOrigin
 
 fc1 = (frame <> c1) # showOrigin 
 
-drawRange r@(Range x1 x2) =
+drawRange label r@(Range x1 x2) =
 	position [(p2 ((x1+x2)/2, 0), (rect # fcA (blue `withOpacity` 0.5)) (x2-x1) 0.2)] <>
-	position [(p2 (x, 0), fc1 # scale 0.2) | x <- [x1, x2]]
+	position [(p2 (x, 0), fc1 # scale 0.2) | x <- [x1, x2]] <>
+	position [(p2 ((x1+x2)/2, 0), (text label # scale 0.1))]
 
-
-
-
-
-tupleToProbRanges :: (Floating a, Ord a) => (a, a) -> (a, a) -> ((Range a), (Range a))
-tupleToProbRanges (probA, sizeA) (probB, sizeB) = ((prob probA sizeA), (prob probB sizeB))
-
-
-rangeA :: Range Double
-rangeA = prob 0.039 3000
-
-rangeB :: Range Double
-rangeB = prob 0.042 3000
-
-normalizedAB :: (Range Double, Range Double)
-normalizedAB = normalizeRs (rangeA, rangeB)
---example = rect 2 1 # lc purple
-
-
-
----- 
-example = (rect 2 1 # lc purple) <> (
-	(drawRange $ fst normalizedAB)
-	===
-	(drawRange $ snd normalizedAB)
-	)
-	<>
-	(position [(p2 (x, 0), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
-
-
---renderTheDiagram rx@(Range x1 x2) ry@(Range y1 y2) = example
 
 renderTheDiagram :: Range Double -> Range Double -> QDiagram SVG R2 Any
 renderTheDiagram rx@(Range x1 x2) ry@(Range y1 y2) = 
 	(rect 2 1 # lc purple)  <> (
-	(drawRange $ fst normalizedXY)
+	(drawRange "A" $ fst normalizedXY)
 	===
-	(drawRange $ snd normalizedXY)
+	(drawRange "B" $ snd normalizedXY)
 	)
 	<>
 	-- axis
-	(position [(p2 (x, 0), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
+	(position [(p2 (x, 0.2), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
+	<>
+	(position [(p2 (x, 0.27), text (formatPerc2 $ ((x1+y2)/2)+(x*(y2-x1)/2)) # scale 0.05) | x <- [(-1),(-0.8).. 1]])
 	where
 		normalizedXY = normalizeRs (rx, ry)
 
 
+formatPerc2 :: Double -> String
+formatPerc2 n = (++"%") $ show ((fromIntegral $ round $ (n * 10000))/100)
+
+
+--- input
 data DiagramOpts = DiagramOpts
 	{ width     :: Maybe Int
 	, height    :: Maybe Int
@@ -114,34 +94,26 @@ main = do
 	prog <- getProgName
 	args <- getArgs
 	opts <- cmdArgs (diagramOpts prog False)
-	putStrLn $ show opts
+	--putStrLn $ show opts
 	let (probA, sizeA) = (read (a opts)) :: (Double, Double)
 	let (probB, sizeB) = (read (b opts)) :: (Double, Double)
 	putStrLn (show (probA, sizeA))
 	putStrLn (show (probB, sizeB))
 
-	--putStrLn (show example)
-	
-	--let d = position [(p2 (-0.5,-0.45), (alignedText 0 0 (show normalizedAB) # scale 0.05)), (p2 (0,0), example)]
-	--let d = renderTheDiagram 2
-
-	--let go = renderSvg $ renderDia SVG (SVGOptions (Width 800) Nothing) d
+	putStrLn $ show $ width opts
 
 	let d = renderTheDiagram (prob probA sizeA) (prob probB sizeB)
 	let
-		sizeSpec :: SizeSpec2D
-		sizeSpec = Width 800
-		--options :: Options SVG R2 
-		--options = SVGOptions sizeSpec
 		build = renderDia SVG (SVGOptions (Width 800) Nothing) d
     	BS.writeFile "c.svg" (renderSvg build)
-	--defaultMain d
-	putStrLn "a"
+	putStrLn "Done!"
 
 
 
 
 
+
+-- datatype Range 
 
 data Range a = Range a a deriving (Read)
 
@@ -191,12 +163,4 @@ minimumR rs = foldl1 (min) $ [min x1 x2 | (Range x1 x2) <- rs]
 
 maximumR :: (Ord a) => [Range a] -> a
 maximumR rs = foldl1 (max) $ [max x1 x2 | (Range x1 x2) <- rs]
-
-
-rangeToList :: Range a -> [a]
-rangeToList (Range x1 x2) = [x1, x2]
---minimumRs :: (Ord a) => a -> [Range a] -> a
---minimumRs v [] = v
---minimumRs v (r:rs) = minimumRs (minR r v) rs 
---	where minR (Range x1 x2) v = minimum [x1, x2, v]
 
