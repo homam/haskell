@@ -2,3 +2,5 @@ tot1
 *.exe
 *.hi
 *.svg
+test
+*.o
