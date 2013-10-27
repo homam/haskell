@@ -1,2 +1,4 @@
 tot1
-tot1.exe
+*.exe
+*.hi
+*.svg
