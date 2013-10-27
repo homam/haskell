@@ -1,6 +1,6 @@
 
 {-# XNoMonomorphismRestriction #-}
-{-# LANGUAGE DeriveDataTypeable, CPP #-}
+{-# LANGUAGE  CPP #-} -- DeriveDataTypeable,
 
 import System.Environment  (getArgs, getProgName)
 import Diagrams.Prelude hiding (width, height, interval)
@@ -13,6 +13,7 @@ import Text.Blaze.Svg.Renderer.Utf8 (renderSvg)
 
 import Diagrams.Backend.SVG.CmdLine
 
+import Data.List (sort)
 import Range
 
 type DRange = Range Double
@@ -41,7 +42,7 @@ tick v =
 -- drawRangeRect is indipendent of position
 drawRangeRect :: Double -> String -> Double -> QDiagram SVG R2 Any 
 drawRangeRect height label width =
-	(rect width height) # fcA (red `withOpacity` 0.5)
+	(rect width height) # fcA (purple `withOpacity` 0.5)
 	<>
 	(text label # scale 0.1)
 
@@ -52,7 +53,7 @@ drawRange height label r@(Range x1 x2) =
 
 -- layerHeight = 1 / numebr of vertically stacked diagrams 
 
-layerHeight = 0.25
+layerHeight = 0.2
 
 stackR g = (rect 2.1 layerHeight # lcA (black `withOpacity` 0.1)) <> g
 
@@ -65,18 +66,21 @@ rangeB = prob 0.029 2687
 normalizedXY :: (DRange, DRange)
 normalizedXY = normalizeRs (rangeA, rangeB)
 
+
 	
-axisTickLabel :: Double -> Double
-axisTickLabel x = ((x1+y2)/2)+(x*(y2-x1)/2)
+axisTickLabel :: Double -> Double -> Double -> Double
+axisTickLabel minx maxx x = ((x1+y2)/2)+(x*(y2-x1)/2)
 	where
-		(Range x1 x2) = min rangeA rangeB
-		(Range y1 y2) = max rangeA rangeB
+		x1 = minx
+		y2 = maxx
 
-axis = [(p2 (x, 0), tick (axisTickLabel x) # scale 0.1) | x <- [(-1),(-0.8).. 1]]
+axis minx maxx = [(p2 (x, 0), tick (axisTickLabel minx maxx x) # scale 0.1) | x <- [(-1),(-0.8).. 1]]
 
-d = 
+
+
+barsDiagram ranges = 
 	(
-		(stackR $ position axis)
+		(stackR $ position $ axis (min minx1 minx2) (max maxx1 maxx2))
 		===
 		(stackR $ drawRange layerHeight "A" (fst normalizedXY))
 		===
@@ -86,5 +90,11 @@ d =
 		===
 		(stackR $ drawRange layerHeight "D" (snd normalizedXY))
 	)
+	 ===
+	(rect 2.1 1)
+	where
+		sranges = sort ranges
+		minr@(Range minx1 minx2) = head sranges
+		maxr@(Range maxx1 maxx2) = last sranges
 
-main = defaultMain $ d -- drawRangeRect "A" 2 --((rect 2 1) <> (text "A" # scale 1 ))
+main = defaultMain $ barsDiagram $ sort [(prob 0.035 2587), (prob 0.039 2787), (prob 0.042 2882), (prob 0.031 2301)]  -- drawRangeRect "A" 2 --((rect 2 1) <> (text "A" # scale 1 ))

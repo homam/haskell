@@ -39,6 +39,15 @@ normalizeRs (x@(Range x1 x2), y@(Range y1 y2)) = (rnorm x, rnorm y)
 		l = ((maximumR [x, y]) - (minimumR [x, y])) / 2
 
 
+normalizeRList :: (Fractional a, Ord a) => [Range a] -> [Range a]
+normalizeRList ranges = map rnorm ranges
+	where 
+		rnorm (Range w z) = Range (norm w) (norm z)
+		norm v = (v - m) / l
+		m = ((maximumR ranges) + (minimumR ranges)) / 2
+		l = ((maximumR ranges) - (minimumR ranges)) / 2
+
+
 intersectionR :: (Num a, Ord a) => Range a -> Range a -> Range a
 intersectionR r1 r2 = _intersectionR (min r1 r2) (max r1 r2)
 	where _intersectionR (Range x1 x2) (Range y1 y2)
