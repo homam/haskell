@@ -53,7 +53,7 @@ drawRange height label (Range x1 x2) =
 
 -- layerHeight = 1 / numebr of vertically stacked diagrams 
 
-stackR layerHeight g = rect 2.1 layerHeight # lcA (black `withOpacity` 0.1) <> g
+stackLayerWithHeight layerHeight g = rect 2.1 layerHeight # lcA (black `withOpacity` 0.1) <> g
 	
 axisTickLabel :: Double -> Double -> Double -> Double
 axisTickLabel minx maxx x = ((x1+y2)/2)+(x*(y2-x1)/2)
@@ -67,20 +67,20 @@ axis minx maxx = [(p2 (x, 0), tick (axisTickLabel minx maxx x) # scale 0.1) | x 
 
 barsDiagram :: [Range Double] -> QDiagram SVG R2 Any
 barsDiagram ranges = 
-	stackRHeight (position $ axis (min minx1 minx2) (max maxx1 maxx2))
+	stackLayer (position $ axis (min minx1 minx2) (max maxx1 maxx2))
 	=== 
 	foldedRanges
 	=== 
 	foldedRows
-	--stackRHeight (rect 2.1 layerHeight)
+	--stackLayer (rect 2.1 layerHeight)
 	where
 		layerHeight = 1.0/fromIntegral(length ranges + 1)
-		stackRHeight = stackR layerHeight
+		stackLayer = stackLayerWithHeight layerHeight
 
 		-- ranges graphs
 		normalizedRanges = normalizeRList ranges
-		stackRHeightRange label = stackRHeight . drawRange layerHeight label
-		foldedRanges = foldl (===) mempty [stackRHeightRange [label] r | (r, label) <- zip normalizedRanges ['A'..'Z']]
+		stackLayerRange label = stackLayer . drawRange layerHeight label
+		foldedRanges = foldl (===) mempty [stackLayerRange [label] r | (r, label) <- zip normalizedRanges ['A'..'Z']]
 
 		-- extends of the graph
 		sranges = sort ranges
@@ -89,19 +89,22 @@ barsDiagram ranges =
 
 		-- table
 		cellWidth = 2.1/fromIntegral(length ranges + 1)
-		intersfractions = [[intersectionFraction x y | x <- ranges] | y <- ranges]
-		stackHeightRow label cols = stackRHeight (foldedCols label cols)
-		foldedCols label cols = centerX $ foldl (|||) mempty [(rect cellWidth layerHeight) <> text cellval # scale 0.05 | cellval <- [label] ++ map formatPerc2 cols]
+		rangeInterFracs = [[intersectionFraction x y | x <- ranges] | y <- ranges]
+		stackLayerRow label cols = stackLayer (foldedCols label cols)
+		-- data row columns
+		foldedCols label cols = centerX $ foldl (|||) mempty [rect cellWidth layerHeight <> text cellval # scale 0.05 | cellval <- label : map formatPerc2 cols]
 		foldedRows = 
-			(centerX $ foldl (|||) mempty [(rect cellWidth layerHeight) <> (text [label] # scale 0.05)  | label <- ([' ']++) $ map (\(_,label)->label) $ intersfractions `zip` ['A'..]])
+			-- header
+			centerX (foldl (|||) mempty [rect cellWidth layerHeight <> (text [label] # scale 0.05)  | label <- (" "++) $ map snd $ rangeInterFracs `zip` ['A'..]])
 			===	
-			foldl (===) mempty [stackHeightRow [label] r | (r,label) <- intersfractions `zip` ['A'..]]
-		-- foldedRows = (rect 2.1 0.2 # lc red ) <> ((rect 0.4 0.3) ||| (rect 0.4 0.2))
+			-- rows
+			foldl (===) mempty [stackLayerRow [label] r | (r,label) <- rangeInterFracs `zip` ['A'..]]
 
 
 main :: IO ()
 main = do
 	let probs = [prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301, prob 0.029 2431]
-	putStrLn $ show [[intersectionFraction x y | x <- probs] | y <- probs]
+	print [[intersectionFraction x y | x <- probs] | y <- probs]
 	defaultMain $ barsDiagram probs
 	-- defaultMain $ (rect 2.1 1) <> centerX ((rect 0.4 0.2) ||| (rect 0.5 0.3)) -- 
+
