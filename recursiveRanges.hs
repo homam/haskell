@@ -35,7 +35,7 @@ intersection r1 r2 = _intersection (min r1 r2) (max r1 r2)
 
 union :: (Num a, Ord a) => Range a -> Range a -> Range a
 union (Single x1 x2) (Single y1 y2)
-	| ((Single x1 x2) `intersection` (Single y1 y2)) == (Single 0 0) = Single 1 1 --unionNoIntersection rx ry
+	| ((Single x1 x2) `intersection` r1) == (Single 0 0) = Single 1 1 --unionNoIntersection rx ry
 	| otherwise = Single 0 0 
 	--where
 	--	unionNoIntersection (Single x1 x2) (Single y1 y2) = Single (min x1 y1) (max x2 y2)

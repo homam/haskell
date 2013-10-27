@@ -23,35 +23,61 @@ prob p n = range (p - c) (p + c)
 		c = 1.96 * sqrt(p * (1-p)/n) / 2
 
 -- diagram utility functions
+frame :: QDiagram SVG R2 Any
 frame = square 1
+
+c1 :: QDiagram SVG R2 Any
 c1 = circle 0.5 -- # translate (r2 (0, 0)) # showOrigin
 
-fc1 = (frame <> c1) # showOrigin 
+fc1 :: QDiagram SVG R2 Any
+fc1 = (frame # lcA (black `withOpacity` 0.0) <> c1 # lcA (black `withOpacity` 0.0)) # showOrigin 
 
+
+
+drawRange :: String -> Range Double -> QDiagram SVG R2 Any
 drawRange label r@(Range x1 x2) =
-	position [(p2 ((x1+x2)/2, 0), (rect # fcA (blue `withOpacity` 0.5)) (x2-x1) 0.2)] <>
-	position [(p2 (x, 0), fc1 # scale 0.2) | x <- [x1, x2]] <>
-	position [(p2 ((x1+x2)/2, 0), (text label # scale 0.1))]
+	position [(p2 ((x1+x2)/2, 0), ((rect # fcA (red `withOpacity` 0.5)) (x2-x1) 0.2) <> (text label # scale 0.1))]
+	 -- <> position [(p2 ((x1+x2)/2, 0), (text label # scale 0.1))]
+	 <> position [(p2 (x, 0), fc1 # scale 0.2) | x <- [x1, x2]]
 
+
+drawInfoText :: Range Double -> Range Double -> QDiagram SVG R2 Any
+drawInfoText rx ry = 
+	((text $ txt) # fontSize 0.1)
+	where 
+		txt = (format2R rx) ++ " ∩ " ++ (format2R ry) ++ " = " ++ (formatPerc2 $ intersectionFraction rx ry)
 
 renderTheDiagram :: Range Double -> Range Double -> QDiagram SVG R2 Any
 renderTheDiagram rx@(Range x1 x2) ry@(Range y1 y2) = 
-	(rect 2 1 # lc purple)  <> (
+	--(rect 2 1 # lcA (red `withOpacity` 0.1))  <>
+	 (
+	((position [(p2 (x, 0.0), text (formatPerc2 $ ((x1+y2)/2)+(x*(y2-x1)/2)) # scale 0.05) | x <- [(-1),(-0.8).. 1]])
+	<> (position [(p2 (x, 0.1), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
+	<> (rect 2 0.2 # lcA (black `withOpacity` 0.0)))
+	===
 	(drawRange "A" $ fst normalizedXY)
 	===
 	(drawRange "B" $ snd normalizedXY)
+	===
+	((rect 2 0.2 # lcA (black `withOpacity` 0.0)) <> (drawInfoText rx ry))
 	)
-	<>
-	-- axis
-	(position [(p2 (x, 0.2), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
-	<>
-	(position [(p2 (x, 0.27), text (formatPerc2 $ ((x1+y2)/2)+(x*(y2-x1)/2)) # scale 0.05) | x <- [(-1),(-0.8).. 1]])
+	-- <>
+	---- axis
+	--(position [(p2 (x, 0.2), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
+	-- <>
+	--(position [(p2 (x, 0.27), text (formatPerc2 $ ((x1+y2)/2)+(x*(y2-x1)/2)) # scale 0.05) | x <- [(-1),(-0.8).. 1]])
 	where
 		normalizedXY = normalizeRs (rx, ry)
 
 
+format2 :: Double -> String
+format2 n = show ((fromIntegral $ round $ (n * 10000))/100)
+
 formatPerc2 :: Double -> String
-formatPerc2 n = (++"%") $ show ((fromIntegral $ round $ (n * 10000))/100)
+formatPerc2 = (++"%") . format2 --(++"%") $ show ((fromIntegral $ round $ (n * 10000))/100)
+
+format2R :: Range Double -> String
+format2R (Range rx ry) = "(" ++ format2 rx ++ " .. " ++ format2 ry ++ ")"
 
 
 --- input
@@ -105,7 +131,7 @@ main = do
 	let d = renderTheDiagram (prob probA sizeA) (prob probB sizeB)
 	let
 		build = renderDia SVG (SVGOptions (Width 800) Nothing) d
-    	BS.writeFile "c.svg" (renderSvg build)
+    	BS.writeFile (output opts) (renderSvg build)
 	putStrLn "Done!"
 
 
@@ -163,4 +189,7 @@ minimumR rs = foldl1 (min) $ [min x1 x2 | (Range x1 x2) <- rs]
 
 maximumR :: (Ord a) => [Range a] -> a
 maximumR rs = foldl1 (max) $ [max x1 x2 | (Range x1 x2) <- rs]
+
+intersectionFraction :: (Fractional a, Ord a) => Range a -> Range a -> a
+intersectionFraction r1 r2 = (lenR $  intersectionR r1 r2) / (foldl (+) 0 $ map lenR $ unionR r1 r2)
 
