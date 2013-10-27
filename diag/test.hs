@@ -82,13 +82,14 @@ barsDiagram ranges =
 	(
 		(stackR $ position $ axis (min minx1 minx2) (max maxx1 maxx2))
 		===
-		(stackR $ drawRange layerHeight "A" (fst normalizedXY))
-		===
-		(stackR $ drawRange layerHeight "B" (snd normalizedXY))
-		===
-		(stackR $ drawRange layerHeight "C" (snd normalizedXY))
-		===
-		(stackR $ drawRange layerHeight "D" (snd normalizedXY))
+		(stackR $ drawRange layerHeight "A" (head normazedRanges))
+		--(stackR $ drawRange layerHeight "A" (fst normalizedXY))
+		-- ===
+		--(stackR $ drawRange layerHeight "B" (snd normalizedXY))
+		-- ===
+		--(stackR $ drawRange layerHeight "C" (snd normalizedXY))
+		-- ===
+		--(stackR $ drawRange layerHeight "D" (snd normalizedXY))
 	)
 	 ===
 	(rect 2.1 1)
@@ -96,5 +97,6 @@ barsDiagram ranges =
 		sranges = sort ranges
 		minr@(Range minx1 minx2) = head sranges
 		maxr@(Range maxx1 maxx2) = last sranges
+		normazedRanges = normalizeRList ranges
 
 main = defaultMain $ barsDiagram $ sort [(prob 0.035 2587), (prob 0.039 2787), (prob 0.042 2882), (prob 0.031 2301)]  -- drawRangeRect "A" 2 --((rect 2 1) <> (text "A" # scale 1 ))

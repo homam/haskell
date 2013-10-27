@@ -6,6 +6,7 @@ module Range (
 	intersectionR,
 	intersectionFraction,
 	normalizeRs,
+	normalizeRList,
 	prob
 	) where
 
