@@ -92,6 +92,7 @@ barsDiagram ranges =
 		stackHeightRow cols = stackRHeight (foldedCols cols)
 		foldedCols cols = foldl (|||) mempty [(rect 0.4 0.2) <> text (formatPerc2 c) # scale 0.05 | c <- cols]
 		foldedRows = foldl (===) mempty [stackHeightRow r | r <- intersfractions]
+		-- foldedRows = (rect 2.1 0.2 # lc red ) <> ((rect 0.4 0.3) ||| (rect 0.4 0.2))
 
 
 main :: IO ()
