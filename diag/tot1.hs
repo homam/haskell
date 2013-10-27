@@ -1,5 +1,5 @@
 -- example:
--- /tot1 -o c.svg --width=800 -a="(0.024, 3000)" -b="(0.03, 3000)"
+-- .\tot1 -o homam.svg --width=800 -a="(0.027, 3000)" -b="(0.031, 3000)"
 
 {-# XNoMonomorphismRestriction #-}
 {-# LANGUAGE DeriveDataTypeable, CPP #-}
@@ -60,7 +60,7 @@ renderTheDiagram rx@(Range x1 x2) ry@(Range y1 y2) =
 	(drawRange "B" $ snd normalizedXY)
 	===
 	((rect 2 0.2 # lcA (black `withOpacity` 0.0)) <> (drawInfoText rx ry))
-	)
+	) <> (text "A")
 	-- <>
 	---- axis
 	--(position [(p2 (x, 0.2), (rect 0.2 1) # fc silver # scale 0.05) | x <- [(-1),(-0.8).. 1]])
