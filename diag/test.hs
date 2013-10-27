@@ -71,7 +71,8 @@ barsDiagram ranges =
 	=== 
 	foldedRanges
 	=== 
-	rect 2.1 1
+	foldedRows
+	--stackRHeight (rect 2.1 layerHeight)
 	where
 		layerHeight = 1.0/fromIntegral(length ranges + 1)
 		stackRHeight = stackR layerHeight
@@ -86,6 +87,15 @@ barsDiagram ranges =
 		(Range minx1 minx2) = head sranges
 		(Range maxx1 maxx2) = last sranges
 
+		-- table
+		intersfractions = [[intersectionFraction x y | x <- ranges] | y <- ranges]
+		stackHeightRow cols = stackRHeight (foldedCols cols)
+		foldedCols cols = foldl (|||) mempty [(rect 0.4 0.2) <> text (formatPerc2 c) # scale 0.05 | c <- cols]
+		foldedRows = foldl (===) mempty [stackHeightRow r | r <- intersfractions]
+
 
 main :: IO ()
-main = defaultMain $ barsDiagram [prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301]  -- drawRangeRect "A" 2 --((rect 2 1) <> (text "A" # scale 1 ))
+main = do
+	let probs = [prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301]
+	putStrLn $ show [[intersectionFraction x y | x <- probs] | y <- probs]
+	defaultMain $ barsDiagram  probs -- drawRangeRect "A" 2 --((rect 2 1) <> (text "A" # scale 1 ))
