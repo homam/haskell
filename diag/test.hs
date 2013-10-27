@@ -88,15 +88,20 @@ barsDiagram ranges =
 		(Range maxx1 maxx2) = last sranges
 
 		-- table
+		cellWidth = 2.1/fromIntegral(length ranges + 1)
 		intersfractions = [[intersectionFraction x y | x <- ranges] | y <- ranges]
-		stackHeightRow cols = stackRHeight (foldedCols cols)
-		foldedCols cols = foldl (|||) mempty [(rect 0.4 0.2) <> text (formatPerc2 c) # scale 0.05 | c <- cols]
-		foldedRows = foldl (===) mempty [stackHeightRow r | r <- intersfractions]
+		stackHeightRow label cols = stackRHeight (foldedCols label cols)
+		foldedCols label cols = centerX $ foldl (|||) mempty [(rect cellWidth layerHeight) <> text cellval # scale 0.05 | cellval <- [label] ++ map formatPerc2 cols]
+		foldedRows = 
+			(centerX $ foldl (|||) mempty [(rect cellWidth layerHeight) <> (text [label] # scale 0.05)  | label <- ([' ']++) $ map (\(_,label)->label) $ intersfractions `zip` ['A'..]])
+			===	
+			foldl (===) mempty [stackHeightRow [label] r | (r,label) <- intersfractions `zip` ['A'..]]
 		-- foldedRows = (rect 2.1 0.2 # lc red ) <> ((rect 0.4 0.3) ||| (rect 0.4 0.2))
 
 
 main :: IO ()
 main = do
-	let probs = [prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301]
+	let probs = [prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301, prob 0.029 2431]
 	putStrLn $ show [[intersectionFraction x y | x <- probs] | y <- probs]
-	defaultMain $ barsDiagram  probs -- drawRangeRect "A" 2 --((rect 2 1) <> (text "A" # scale 1 ))
+	defaultMain $ barsDiagram probs
+	-- defaultMain $ (rect 2.1 1) <> centerX ((rect 0.4 0.2) ||| (rect 0.5 0.3)) -- 
