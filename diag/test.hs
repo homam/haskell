@@ -77,9 +77,9 @@ barsDiagram ranges =
 		stackRHeight = stackR layerHeight
 
 		-- ranges graphs
-		normazedRanges = normalizeRList ranges
+		normalizedRanges = normalizeRList ranges
 		stackRHeightRange label = stackRHeight . drawRange layerHeight label
-		foldedRanges = foldl (===) mempty [stackRHeightRange [label] r | (r, label) <- zip normazedRanges ['A'..'Z']]
+		foldedRanges = foldl (===) mempty [stackRHeightRange [label] r | (r, label) <- zip normalizedRanges ['A'..'Z']]
 
 		-- extends of the graph
 		sranges = sort ranges
