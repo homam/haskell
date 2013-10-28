@@ -4,14 +4,12 @@
 
 import System.Environment  (getArgs, getProgName)
 import Diagrams.Prelude hiding (width, height, interval)
-import Data.Colour (withOpacity)
+
 
 import qualified Data.ByteString.Lazy as BS
 import Diagrams.Backend.SVG
 import System.Console.CmdArgs.Implicit hiding (args)
 import Text.Blaze.Svg.Renderer.Utf8 (renderSvg)
-
-import Diagrams.Backend.SVG.CmdLine
 
 import Data.List (sort)
 import Range
