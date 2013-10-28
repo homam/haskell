@@ -102,11 +102,52 @@ barsDiagram ranges =
 			foldl (===) mempty [stackLayerRow [label] r | (r,label) <- table `zip` ['A'..]]
 
 
-main :: IO ()
-main = do
-	let rangeProbs = read("[(0.035, 2587), (0.034, 2787), (0.042, 2882), (0.031, 2301), (0.029, 2431)]")::[(Double, Double)]
-	let probs = [prob p n | (p, n) <- rangeProbs] --[prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301, prob 0.029 2431]
-	print [[intersectionFraction x y | x <- probs] | y <- probs]
-	defaultMain $ barsDiagram probs
-	-- defaultMain $ (rect 2.1 1) <> centerX ((rect 0.4 0.2) ||| (rect 0.5 0.3)) -- 
+-- usage:
+-- ./test -o "t.svg" --width=1100 --height=500  --list="[(0.035, 2587), (0.034, 2787), (0.042, 2882), (0.031, 2301), (0.029, 2431)]"
 
+main :: IO ()
+main = do 
+	prog <- getProgName
+	args <- getArgs
+	opts <- cmdArgs (diagramOpts prog False)
+	let rangeProbs = read(list opts)::[(Double, Double)]
+	let probs = [prob p n | (p, n) <- rangeProbs] 
+	let d = barsDiagram probs
+
+	let sizeSpec = case (width opts, height opts) of
+                            (Nothing, Nothing) -> Absolute
+                            (Just w, Nothing)  -> Width (fromIntegral w)
+                            (Nothing, Just h)  -> Height (fromIntegral h)
+                            (Just w, Just h)   -> Dims (fromIntegral w)
+                                                       (fromIntegral h)
+
+	let
+		build = renderDia SVG (SVGOptions sizeSpec Nothing) d
+    	BS.writeFile (output opts) (renderSvg build)
+	putStrLn "Done!"
+
+
+
+
+
+--- input
+data DiagramOpts = DiagramOpts
+	{ width     :: Maybe Int
+	, height    :: Maybe Int
+	, output    :: FilePath
+	, list		:: String
+	}
+	deriving (Show, Data, Typeable)
+
+diagramOpts :: String -> Bool -> DiagramOpts
+diagramOpts prog sel = DiagramOpts
+  { width =  def
+             &= typ "INT"
+  , height = def
+             &= typ "INT"
+  , output = def
+           &= typFile
+  , list = def
+  }
+  &= summary "Command-line diagram generation."
+  &= program prog
