@@ -70,7 +70,7 @@ barsDiagram ranges =
 	stackLayer (position $ axis (min minx1 minx2) (max maxx1 maxx2))
 	=== 
 	foldedRanges
-	=== 
+	|||
 	foldedRows
 	--stackLayer (rect 2.1 layerHeight)
 	where
@@ -79,8 +79,8 @@ barsDiagram ranges =
 
 		-- ranges graphs
 		normalizedRanges = normalizeRList ranges
-		stackLayerRange label = stackLayer . drawRange layerHeight label
-		foldedRanges = foldl (===) mempty [stackLayerRange [label] r | (r, label) <- zip normalizedRanges ['A'..'Z']]
+		stackLayerRange label = stackLayer . drawRange layerHeight label -- String -> Range Double -> Diagram
+		foldedRanges = foldl (===) mempty [stackLayerRange [label] r | (r, label) <- normalizedRanges `zip` ['A'..'Z']]
 
 		-- extends of the graph
 		sranges = sort ranges
@@ -89,16 +89,17 @@ barsDiagram ranges =
 
 		-- table
 		cellWidth = 2.1/fromIntegral(length ranges + 1)
-		rangeInterFracs = [[intersectionFraction x y | x <- ranges] | y <- ranges]
-		stackLayerRow label cols = stackLayer (foldedCols label cols)
+		cell label = rect cellWidth layerHeight <> text label # scale 0.05 -- cell diagram with the text label at its center
+		table = [[intersectionFraction x y | x <- ranges] | y <- ranges]
 		-- data row columns
-		foldedCols label cols = centerX $ foldl (|||) mempty [rect cellWidth layerHeight <> text cellval # scale 0.05 | cellval <- label : map formatPerc2 cols]
+		foldedCols label cols = centerX $ foldl (|||) mempty [cell val | val <- label : map formatPerc2 cols]
+		stackLayerRow label cols = stackLayer (foldedCols label cols)
 		foldedRows = 
 			-- header
-			centerX (foldl (|||) mempty [rect cellWidth layerHeight <> (text [label] # scale 0.05)  | label <- (" "++) $ map snd $ rangeInterFracs `zip` ['A'..]])
+			centerX (foldl (|||) mempty [cell [label] | label <- (" "++) $ map snd $ table `zip` ['A'..]])
 			===	
 			-- rows
-			foldl (===) mempty [stackLayerRow [label] r | (r,label) <- rangeInterFracs `zip` ['A'..]]
+			foldl (===) mempty [stackLayerRow [label] r | (r,label) <- table `zip` ['A'..]]
 
 
 main :: IO ()
