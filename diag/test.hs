@@ -104,7 +104,8 @@ barsDiagram ranges =
 
 main :: IO ()
 main = do
-	let probs = [prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301, prob 0.029 2431]
+	let rangeProbs = read("[(0.035, 2587), (0.034, 2787), (0.042, 2882), (0.031, 2301), (0.029, 2431)]")::[(Double, Double)]
+	let probs = [prob p n | (p, n) <- rangeProbs] --[prob 0.035 2587, prob 0.034 2787, prob 0.042 2882, prob 0.031 2301, prob 0.029 2431]
 	print [[intersectionFraction x y | x <- probs] | y <- probs]
 	defaultMain $ barsDiagram probs
 	-- defaultMain $ (rect 2.1 1) <> centerX ((rect 0.4 0.2) ||| (rect 0.5 0.3)) -- 
