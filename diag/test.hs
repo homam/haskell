@@ -107,7 +107,7 @@ main :: IO ()
 main = do 
 	prog <- getProgName
 	args <- getArgs
-	opts <- cmdArgs (diagramOpts prog False)
+	opts <- cmdArgs (diagramOpts prog)
 	let rangeProbs = read(list opts)::[(Double, Double)]
 	let probs = [prob p n | (p, n) <- rangeProbs] 
 	let d = barsDiagram probs
@@ -137,8 +137,8 @@ data DiagramOpts = DiagramOpts
 	}
 	deriving (Show, Data, Typeable)
 
-diagramOpts :: String -> Bool -> DiagramOpts
-diagramOpts prog sel = DiagramOpts
+diagramOpts :: String -> DiagramOpts
+diagramOpts prog = DiagramOpts
   { width =  def
              &= typ "INT"
   , height = def
@@ -147,5 +147,3 @@ diagramOpts prog sel = DiagramOpts
            &= typFile
   , list = def
   }
-  &= summary "Command-line diagram generation."
-  &= program prog
