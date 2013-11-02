@@ -10,6 +10,7 @@ module Normal (
 import System.IO
 import Text.Read (readMaybe)
 import System.Random hiding (split)
+import qualified Debug.Trace as D
 
 
 conversionRate :: [Bool] -> Double
@@ -82,7 +83,7 @@ normalTest numberOfBins trials selectionSize ds gen =
 	let
 		(selection, _) = selectManyRandoms trials ds selectionSize gen
 		crates = map conversionRate selection
-		(lo, hi) = extents crates
+		(lo, hi) = (D.trace (("extents = " ++) $ show $ extents crates) extents crates)
 		bs = bins numberOfBins lo hi
 	in map (\x -> (fst x, length $ snd x)) $ groupWithBins bs crates
 
