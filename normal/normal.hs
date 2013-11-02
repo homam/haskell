@@ -2,10 +2,11 @@ import System.IO
 import Text.Read (readMaybe)
 import System.Random hiding (split)
 
-conversionRate :: (Fractional a) => [Bool] -> a
+--conversionRate :: (Fractional a) => [Bool] -> a
+conversionRate :: [Bool] -> Double
 conversionRate ls = (length . filter (==True)) ls `devF` length ls
 
-devF :: (Fractional a, Integral b) => b -> b -> a
+devF :: (Integral b) => b -> b -> Double
 devF a b = fromIntegral a / fromIntegral b
 
 
@@ -64,21 +65,25 @@ randomValues n gen = (c:rest, gen'')
 
 
 -- | Does a normal test for any [Bool]
-normalTest :: (Enum a, Eq n, Fractional a, Num n, Ord a, RandomGen t) =>
-     a -> n -> n -> [Bool] -> t -> [Int]
+normalTest :: (Eq n, Num n, RandomGen t) =>
+     Double -> n -> n -> [Bool] -> t -> [(Double, Int)]
 normalTest numberOfBins trials selectionSize ds gen = 
 	let
 		(selection, _) = selectManyRandoms trials ds selectionSize gen
 		crates = map conversionRate selection
 		(lo, hi) = extents crates
 		bs = bins numberOfBins lo hi
-	in map length $ groupWithBins bs crates
+	in map (\x -> (fst x, length $ snd x)) $ groupWithBins bs crates
+
+
 
 
 -- | Puts the values of [ls] in the bins specified by [bs]
-groupWithBins :: Ord a => [(a, a)] -> [a] -> [[a]]
-groupWithBins bs ls = map (\(lo, hi) -> filter (isIn lo hi) ls) bs
-	where isIn l h s = (s >= l) && (s < h)
+groupWithBins :: (Fractional a, Ord a) => [(a, a)] -> [a] -> [(a, [a])]
+groupWithBins bs ls = map (\(lo, hi) -> (mid lo hi,filter (isIn lo hi) ls)) bs
+	where 
+		isIn l h s = (s >= l) && (s < h)
+		mid l h = (l+h) / 2.0
 
 extents :: Ord a => [a] -> (a, a)
 extents ls = (minimum ls, maximum ls)
