@@ -5,7 +5,6 @@
 import System.Environment  (getArgs, getProgName)
 import Diagrams.Prelude hiding (width, height, interval)
 
-
 import qualified Data.ByteString.Lazy as BS
 import Diagrams.Backend.SVG
 import System.Console.CmdArgs.Implicit hiding (args)
