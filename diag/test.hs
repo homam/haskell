@@ -99,6 +99,7 @@ barsDiagram ranges =
 			foldl (===) mempty [stackLayerRow [label] r | (r,label) <- table `zip` ['A'..]]
 
 
+-- creates a diagram showing the confidence intervals of the list of given test results [(ConversionRate, SampleSize)]
 -- usage:
 -- ./test -o "t.svg" --width=1100 --height=500  --list="[(0.035, 2587), (0.034, 2787), (0.042, 2882), (0.031, 2301), (0.029, 2431)]"
 

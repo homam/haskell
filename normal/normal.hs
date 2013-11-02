@@ -1,3 +1,12 @@
+module Normal (
+	randomValues,
+	normalTest,
+	maybeTupleToConversionList,
+	parse,
+	conversionRate,
+	mainTest
+	) where
+
 import System.IO
 import Text.Read (readMaybe)
 import System.Random hiding (split)
@@ -82,10 +91,12 @@ normalTest numberOfBins trials selectionSize ds gen =
 
 -- | Puts the values of [ls] in the bins specified by [bs]
 groupWithBins :: (Fractional a, Ord a) => [(a, a)] -> [a] -> [(a, [a])]
-groupWithBins bs ls = map (\(lo, hi) -> (mid lo hi,filter (isIn lo hi) ls)) bs
+groupWithBins bs ls = map (\((lo, hi), isLast) -> (mid lo hi,filter (isIn lo hi isLast) ls)) bs'
 	where 
-		isIn l h s = (s >= l) && (s < h)
+		isIn l h False s = (s >= l) && (s < h)
+		isIn l h True s = (s >= l) && (s <= h) -- if it's the last bin, then the maximum is inclusive
 		mid l h = (l+h) / 2.0
+		bs' = [(x,i==(length bs -1)) | (x,i) <- bs `zip` [0..]]
 
 extents :: Ord a => [a] -> (a, a)
 extents ls = (minimum ls, maximum ls)
@@ -138,12 +149,12 @@ split p s
 
 
 
-main :: IO ()
-main = do
+mainTest :: IO ()
+mainTest = do
 	
 	gen <- newStdGen
-	let (coins, gen') = randomValues 1000 gen :: ([Bool], StdGen)
-	print $ normalTest 10 500 10 coins gen'
+	let (coins, gen') = randomValues 10000 gen :: ([Bool], StdGen)
+	print $ normalTest 2 500 100 coins gen'
 	print $ conversionRate coins
 	putStrLn "--"
 
