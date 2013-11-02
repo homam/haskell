@@ -2,12 +2,14 @@ import System.IO
 import Text.Read (readMaybe)
 import System.Random hiding (split)
 
---conversionRate :: (Fractional a) => [Bool] -> a
-conversionRate :: [Bool] -> Double
-conversionRate ls = (length . filter (==True)) ls `devF` length ls
 
-devF :: (Integral b) => b -> b -> Double
-devF a b = fromIntegral a / fromIntegral b
+conversionRate :: [Bool] -> Double
+--conversionRate ls = (length . filter (==True)) ls `devF` length ls
+conversionRate ls = cRate ls 0 0 -- this is a faster implementation of conversionRate that scans list once
+	where
+		cRate [] v s = s / v
+		cRate (x:xs) v s = cRate xs (v+1) (s+isS)
+			where isS = if x then 1 else 0
 
 
 -- randomization
