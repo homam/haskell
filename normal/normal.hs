@@ -1,34 +1,12 @@
 import System.IO
 import Text.Read (readMaybe)
 import System.Random hiding (split)
-import Debug.Trace (trace)
-import Data.List (minimum, maximum)
-import GHC.Exts (groupWith)
---import Data.Maybe (listToMaybe)
---import Control.Monad
 
-conversionRate :: (Fractional a) => [(Maybe Int, Maybe Int)] -> a
-conversionRate ds = countJusts [b | (_,b) <- ds] `devF` countJusts [a | (a,_) <- ds]
-
-countJusts :: [Maybe a] -> Int
-countJusts = length . filter isJust
-	where isJust m = case m of
-		Just _ -> True
-		Nothing -> False
+conversionRate :: (Fractional a) => [Bool] -> a
+conversionRate ls = (length . filter (==True)) ls `devF` length ls
 
 devF :: (Fractional a, Integral b) => b -> b -> a
 devF a b = fromIntegral a / fromIntegral b
-
--- Parses the CSV file
-parse :: String -> [(Maybe Int, Maybe Int)]
-parse content = [(a,b) | [a,b] <- ws]
-	where
-		ws = [parseList $ split (==',') l | l <- ls]
-		ls = take 10000 $ tail $ lines content
-
-		-- Parses each line of the CSV file
-		parseList :: [String] -> [Maybe Int]
-		parseList = map (\s -> readMaybe s :: Maybe Int)
 
 
 -- randomization
@@ -45,7 +23,7 @@ selectRandom :: (RandomGen g, Num n, Eq n) => [a] -> n -> g -> ([a], g)
 selectRandom ls n gen = (map snd . filter ((`elem` indices) . fst) $ [0..] `zip` ls, gen')
 	where
 		(indices, gen') = finiteRandoms (0, lenLs) n gen
-		lenLs = (length ls) -1
+		lenLs = length ls -1
 
 -- Genrates lists of n random numbers between and including (lo, hi) for m times
 manyFiniteRandoms :: (RandomGen g, Random a, Num n, Eq n) => n -> (a, a) -> n -> g -> ([[a]], g)
@@ -67,29 +45,36 @@ finiteRandoms (lo, hi) n gen =
 main :: IO ()
 main = do
 	
+	gen <- newStdGen
+	let (coins, gen') = randomValues 1000 gen :: ([Bool], StdGen)
+	print $ normalTest 10 500 10 coins gen'
+	print $ conversionRate coins
+	putStrLn "--"
+
 	contents <- readFile "iraq.csv"
-	let ds = parse contents
-	--print $ 
-	--print $ countJusts [a | (a,_) <- ds]
-	--print $ countJusts [b | (_,b) <- ds]
-
-	gen' <- newStdGen
-	let (selection, _) = selectManyRandoms 500 ds 1000 gen'
-	let crates = map conversionRate selection
-	let (lo, hi) = extents crates
-	print (lo, hi)
-	let bs = bins 10 lo hi -- $ (fromIntegral bins)/10.0
-	print $ map length $ groupWithBins bs crates
-
-	--print $ manyFiniteRandoms (1,10) 2 gen
+	let ds = maybeTupleToConversionList $ parse contents
+	print $ normalTest 10 500 500 ds gen
 	print $ conversionRate ds
 
 	putStrLn "--"
 
 
+--
+
+-- | Does a normal test for any [Bool]
+normalTest ::(Enum a, Eq n, Fractional a, Num n, Ord a, RandomGen t) =>
+     a -> n -> n -> [Bool] -> t -> [Int]
+normalTest numberOfBins trials selectionSize ds gen = 
+	let
+		(selection, _) = selectManyRandoms trials ds selectionSize gen
+		crates = map conversionRate selection
+		(lo, hi) = extents crates
+		bs = bins numberOfBins lo hi -- $ (fromIntegral bins)/10.0
+	in map length $ groupWithBins bs crates
 
 --
 
+groupWithBins :: Ord a => [(a, a)] -> [a] -> [[a]]
 groupWithBins bs ls = map (\(lo, hi) -> filter (isIn lo hi) ls) bs
 	where isIn l h s = (s >= l) && (s < h)
 
@@ -102,7 +87,19 @@ bins n lo hi = [(size*i+lo,size*(i+1)+lo) | i <- is] --[(lo*i,(trace ("====" ++ 
 		is = [0.0..(n-1)] 
 		size = (hi - lo)/n
 
--- utils
+-- CSV
+
+-- Parses the CSV file
+parse :: String -> [(Maybe Int, Maybe Int)]
+parse content = [(a,b) | [a,b] <- ws]
+	where
+		ws = [parseList $ split (==',') l | l <- ls]
+		ls = take 10000 $ tail $ lines content
+
+		-- Parses each line of the CSV file
+		parseList :: [String] -> [Maybe Int]
+		parseList = map (\s -> readMaybe s :: Maybe Int)
+
 
 split :: (Char -> Bool) -> String -> [String]
 split p s
@@ -115,5 +112,27 @@ split p s
 				| otherwise = tail str
 
 
---maybeRead :: Read a => String -> Maybe a
---maybeRead = fmap fst . listToMaybe . filter (null . snd) . reads
+
+maybeTupleToConversionList :: [(Maybe t, Maybe t1)] -> [Bool]
+maybeTupleToConversionList = map isJustBoth
+	where 
+		isJust m = case m of
+			Just _ -> True
+			Nothing -> False
+		isJustBoth (a, b) = isJust a && isJust b
+
+-- Coin
+
+manyRandomValues :: (RandomGen g, Random a) => Int -> Int -> g -> ([[a]], g)
+manyRandomValues 0 _ gen = ([], gen)
+manyRandomValues m n gen = (c:rest, gen'')
+	where
+		(c, gen') = randomValues n gen
+		(rest, gen'') = manyRandomValues (m-1) n gen'
+
+randomValues :: (RandomGen g, Random a) => Int -> g -> ([a], g)
+randomValues 0 gen = ([], gen)
+randomValues n gen = (c:rest, gen'')
+	where
+		(c, gen') = random gen
+		(rest, gen'') = randomValues (n-1) gen'
