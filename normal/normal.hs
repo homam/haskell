@@ -6,7 +6,7 @@ module Normal (
 	conversionRate,
 	mainTest
 	) where
-
+	
 import System.IO
 import Text.Read (readMaybe)
 import System.Random hiding (split)

@@ -24,21 +24,21 @@ main :: IO ()
 main = do
 	
 	gen <- newStdGen
-	let (coins, gen') = randomValues 10000 gen :: ([Bool], StdGen)
-	-- 							bins trial size ds gen
-	let cRatesTuples = normalTest 25 10000 50 coins gen'
-	print $ conversionRate coins
+	--let (coins, gen') = randomValues 10000 gen :: ([Bool], StdGen)
+	---- 							bins trial size ds gen
+	--let cRatesTuples = normalTest 25 10000 50 coins gen'
+	--print $ conversionRate coins
 
 	putStrLn "--"
 
-	--contents <- readFile "iraq.csv"
-	--let ds = maybeTupleToConversionList $ parse contents
-	--let cRatesTuples = normalTest 10 100 500 ds gen
-	--print $ conversionRate ds
+	contents <- readFile "iraq.csv"
+	let ds = maybeTupleToConversionList $ parse contents	
+	let cRatesTuples = normalTest 10 1000 500 ds gen
+	print $ conversionRate ds
 
 	putStrLn "--"
 
-	defaultMain $ hcat $ map alignB $ map bar $ normalizeCRatesTuples cRatesTuples --[bar h | h <- normalizeSizes sizes]
+	defaultMain $ hcat . map (alignB . bar) $ normalizeCRatesTuples cRatesTuples --[bar h | h <- normalizeSizes sizes]
 
 
 
