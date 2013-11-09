@@ -1,5 +1,7 @@
 module Main (main) where
 
+import Control.Exception
+import GHC.IO.Exception
 import Control.Monad
 import Data.List
 import Data.Tree
@@ -44,7 +46,7 @@ fsTraverseStep (path, node) =
 fsGetChildren :: Path -> IO [DirNode]
 fsGetChildren path = do
     contents <- getDirectoryContents path `catch` const (return [])
-    let visibles = sort . filter (`notElem` [".", "..", ".git", "node_modules"]) $ contents
+    let visibles = sort . filter (`notElem` [".", "..", ".git", ".gitignore", ".hdevtools.sock", "node_modules"]) $ contents
     return (map ((,) path) visibles)
 
 
