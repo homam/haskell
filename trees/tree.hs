@@ -1,17 +1,12 @@
 data Tree a = Empty | Node a (Tree a) (Tree a) deriving (Read, Eq)
 
 instance Show a => Show (Tree a) where
-	show = showWithDepth 0
+	show = showWithDepth ""
 	
-showWithDepth :: Show a => Int -> Tree a -> String
+showWithDepth :: Show a => String -> Tree a -> String
 showWithDepth _ Empty = ""
-showWithDepth depth (Node a left right) = 
-	padding ++ show a  ++ showWithDepth ndepth left ++ showWithDepth ndepth right
-	where
-		ndepth = depth + 1
-		padding 
-			| depth == 0 = ""
-			| otherwise = "\n" ++ concat (replicate depth "   | ") ++ "--"
+showWithDepth padding (Node a left right) = 
+	"\n" ++ padding ++ "--" ++ show a  ++ showWithDepth (padding ++ "  | ") left ++ showWithDepth (padding ++ "    ") right
 
 
 data Direction = L | R deriving (Show, Eq, Read)
