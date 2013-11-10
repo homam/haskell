@@ -9,6 +9,9 @@ showWithDepth padding (Node a left right) =
 	"\n" ++ padding ++ "--" ++ show a  ++ showWithDepth (padding ++ "  | ") left ++ showWithDepth (padding ++ "    ") right
 
 
+leaf :: a -> Tree a
+leaf a = Node a Empty Empty
+
 data Direction = L | R deriving (Show, Eq, Read)
 type Directions = [Direction]
 
@@ -22,29 +25,41 @@ subTree (L:dirs) (Node _ left _) = subTree dirs left
 subTree (R:dirs) (Node _ _ right) = subTree dirs right
 subTree [] tree = tree
 
+cutTree :: Directions -> Tree a -> Tree a
+cutTree (L:dirs) (Node a left right) = Node a (cutTree dirs left) right
+cutTree (R:dirs) (Node a left right) = Node a left (cutTree dirs right)
+cutTree [] _ = Empty
+
+(+>) :: Tree a -> Tree a -> Tree a
+(+>) (Node a left Empty) = Node a left
+
+(<+) :: Tree a -> Tree a -> Tree a
+(<+) (Node a Empty right) new = Node a new right
+
+(</) :: Tree a -> Tree a -> Tree a
+(</) left (Node a Empty right) = Node a left right
+
+(/>) :: Tree a -> Tree a -> Tree a
+(/>) right (Node a left Empty) = Node a left right
 
 freeTree :: Tree Char  
 freeTree =   
     Node 'P'  
         (Node 'O'  
             (Node 'L'  
-                (Node 'N' Empty Empty)  
-                (Node 'T' Empty Empty)  
-            )  
+                (leaf 'N')  
+                (leaf 'J' +> leaf 'Q'))
             (Node 'Y'  
-                (Node 'S' Empty Empty)  
-                (Node 'A' Empty Empty)  
-            )  
+                (leaf 'S' <+ leaf 'B')  
+                (leaf 'A')  
+            ) 
         )  
-        (Node 'L'  
+        (Node 'V'  
             (Node 'W'  
-                (Node 'C' Empty Empty)  
-                (Node 'R' Empty Empty)  
+                (leaf 'G')  
+                (leaf 'Y')  
             )  
-            (Node 'A'  
-                (Node 'A' Empty Empty)  
-                (Node 'C' Empty Empty)  
-            )  
+            (leaf 'L' </ leaf 'c' /> leaf 'R') 
         ) 
 
 main :: IO ()
@@ -52,3 +67,4 @@ main = do
 	print freeTree
 	print $ replaceNode 'X' [L,L] freeTree
 	print $ subTree [L,L] freeTree
+	print $ cutTree [R,L] freeTree
