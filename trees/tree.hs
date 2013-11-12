@@ -72,34 +72,46 @@ cutTree [] _ = Empty
 (<+) (Node a Empty right) new = Node a new right
 
 (</) :: Tree a -> Tree a -> Tree a
-(</) left (Node a Empty right) = Node a left right
+(</) (Node a Empty right) left = Node a left right
 
 (/>) :: Tree a -> Tree a -> Tree a
-(/>) right (Node a left Empty) = Node a left right
+(/>) (Node a left Empty) = Node a left -- eta reduced of (/>) (Node a left Empty) right = Node a left right
+
+infixr 5 </
+infixr 4 />
+
 
 freeTree :: Tree Char  
 freeTree =   
     Node 'P'  
-        (Node 'O'  
-            (Node 'L'  
-                (leaf 'N')  
-                (leaf 'J' +> leaf 'Q'))
-            (Node 'Y'  
-                (leaf 'S' <+ leaf 'B')  
-                (leaf 'A')  
+        (leaf 'O'  
+            </ (leaf 'L'  
+                </ leaf 'N'
+                /> (leaf 'J' /> leaf 'Q'))
+            /> (leaf 'Y'  
+                </ (leaf 'S' </ leaf 'B')  
+                /> leaf 'A'
             ) 
-        )  
-        (Node 'V'  
-            (Node 'W'  
-                (leaf 'G')  
-                (leaf 'Y')  
-            )  
-            (leaf 'L' </ leaf 'c' /> leaf 'R') 
         ) 
+        (leaf 'V'
+            </ (leaf 'W'
+                </ leaf 'G'
+                /> leaf 'Y')
+            /> (leaf 'c'
+                </ leaf 'L'
+                /> leaf 'R')
+        )
+        
+
+        --(
+        --    (leaf 'G' </ leaf 'W' /> leaf 'Y') 
+        --    </ leaf 'V' />
+        --    (leaf 'L' </ leaf 'c'  /> leaf 'R') 
+        --) 
 
 main :: IO ()
 main = do
-	print freeTree
-	print $ replaceNode 'X' [L,L] freeTree
-	print $ subTree [L,L] freeTree
-	print $ cutTree [R,L] freeTree
+    print $ replaceNode 'X' [L,L] freeTree
+    print $ subTree [L,L] freeTree
+    print $ cutTree [R,L] freeTree
+    print freeTree
