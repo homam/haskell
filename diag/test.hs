@@ -1,5 +1,5 @@
 
-{-# XNoMonomorphismRestriction #-}
+-- {-# XNoMonomorphismRestriction #-}
 {-# LANGUAGE DeriveDataTypeable, CPP #-} -- DeriveDataTypeable,
 
 import System.Environment  (getArgs, getProgName)
