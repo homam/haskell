@@ -56,8 +56,11 @@ instance Functor (Tree) where
 
 instance Foldable (Tree) where
 	foldMap f (Tree t []) = f t
-	foldMap f (Tree t (x:xs)) = foldMap f x `mappend` foldMap f (Tree t xs)
-	-- foldMap f (Tree t (x@(Tree x' xs'):xs)) = f t `mappend` foldMap f x -- `mappend` foldr mappend mempty (foldMap f xs)
+	foldMap f (Tree t ts) = f t `mappend` foldTrees f ts
+
+foldTrees :: (Monoid b) => (a -> b) -> [Tree a] -> b
+foldTrees _ [] = mempty
+foldTrees f (Tree x xs : ts) = f x `mappend` foldTrees f xs `mappend` foldTrees f ts
 
 
 -- not complete!
@@ -88,8 +91,7 @@ addTree (Tree x' (x:xs)) r@(Tree y' ys)
 	| x' == y' = Tree x' ((x:xs) ++ ys)
 	| otherwise = Tree x' ((x `addTree` r) : map (`addTree` r) xs)
 
---tiAppend :: (HasDefaultValue a) => Tree a -> TreeItem a -> Tree a
---tiAppend (Leaf a) (TreeItem parent value) = Leaf a
+
 
 main :: IO ()
 main = do 
