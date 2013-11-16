@@ -49,6 +49,17 @@ instance HasDefaultValue Int where defaultValue = 0
 
 data Tree a = Tree a [Tree a] deriving (Show)
 
+instance Functor (Tree) where
+    fmap f (Tree t []) = Tree (f t) []
+    fmap f (Tree t ts) = Tree (f t) [fmap f a | a <- ts] --Node (fmap (fmap f) t)
+
+
+instance Foldable (Tree) where
+	foldMap f (Tree t []) = f t
+	foldMap f (Tree t (x:xs)) = foldMap f x `mappend` foldMap f (Tree t xs)
+	-- foldMap f (Tree t (x@(Tree x' xs'):xs)) = f t `mappend` foldMap f x -- `mappend` foldr mappend mempty (foldMap f xs)
+
+
 -- not complete!
 instance (Monoid a, HasDefaultValue a) => Monoid (Tree a) where -- for mconcat [Tree]
 	mempty = Tree mempty []
@@ -93,12 +104,12 @@ main = do
 
 	let tree2 = Tree 'E' [Tree 'X' [], Tree 'Y' []]
 	print $ tree `addTree` tree2	
-	--print $ foldMap (:[]) tree
-	--print $ foldMap (:"*") tree
+	print $ foldMap (:[]) tree
+	print $ foldMap (:"*") tree
 
-	--let tree2 = Node "" [Leaf "A", Leaf "B", Node "C" [Leaf "E", Leaf "F"]]
-	--let tree3 = Node "" [Leaf "C", Leaf "D"]
-	--Ïrint $ mconcat [tree2, tree3]
+	--let tree3 = Tree "" [Tree "A" [], Tree "B" [], Tree "C" [Tree "E" [], Tree "F" []]]
+	--let tree4 = Tree "" [Tree "C" [], Tree "D" []]
+	--print $ mconcat [tree4, tree3]
 
-	--let items = [TreeItem defaultValue "A", TreeItem "B" "A"]
-	--print items
+	-- let items = [TreeItem defaultValue "A", TreeItem "B" "A"]
+	-- print items
