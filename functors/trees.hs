@@ -1,3 +1,7 @@
+module Trees
+(Tree(..), main)
+where
+
 import Data.Foldable (Foldable, foldMap)
 import Data.Monoid
  
@@ -14,7 +18,7 @@ instance Foldable (Tree) where
 	foldMap f (Leaf t) = f t
 	foldMap f (Node (x:xs)) = foldMap f x `mappend` foldMap f (Node xs)
 	foldMap _ (Node []) = mempty
-	
+
 
 instance (Monoid a) => Monoid (Tree a) where -- for mconcat [Tree]
 	mempty = Node mempty
@@ -34,3 +38,6 @@ main = do
 	let tree2 = Node [Leaf "A", Leaf "B", Node [Leaf "E", Leaf "F"]]
 	let tree3 = Node [Leaf "C", Leaf "D"]
 	print $ mconcat [tree2, tree3]
+
+
+
