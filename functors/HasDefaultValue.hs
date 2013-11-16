@@ -68,6 +68,15 @@ addChild parent value (Tree r (a:as))
 	| r == parent = Tree r ((a:as) ++ [Tree value []])
 	| otherwise = Tree r (addChild parent value a : map (addChild parent value) as)
 
+
+addTree :: (HasDefaultValue a) => Tree a -> Tree a -> Tree a
+addTree l@(Tree x' []) r@(Tree y' _)
+	| x' == y' = r
+	| otherwise = l
+addTree (Tree x' (x:xs)) r@(Tree y' ys)
+	| x' == y' = Tree x' ((x:xs) ++ ys)
+	| otherwise = Tree x' ((x `addTree` r) : map (`addTree` r) xs)
+
 --tiAppend :: (HasDefaultValue a) => Tree a -> TreeItem a -> Tree a
 --tiAppend (Leaf a) (TreeItem parent value) = Leaf a
 
@@ -79,8 +88,11 @@ main = do
 	print $ TreeItem "A" "C"
 
 
-	let tree = Tree '-' [Tree 'A' [], Tree 'B' [], Tree 'C' [Tree 'E' [], Tree 'F' []]]
+	let tree = Tree '-' [Tree 'A' [], Tree 'B' [], Tree 'C' [Tree 'E' [], Tree 'F' []], Tree 'L' []]
 	print $ addChild '-' 'X' tree
+
+	let tree2 = Tree 'E' [Tree 'X' [], Tree 'Y' []]
+	print $ tree `addTree` tree2	
 	--print $ foldMap (:[]) tree
 	--print $ foldMap (:"*") tree
 
