@@ -3,6 +3,7 @@
 
 import Data.Foldable (Foldable, foldMap)
 import Data.Monoid
+--import Debug.Trace (trace)
 
 
 data TreeItem a b where
@@ -46,8 +47,25 @@ instance HasDefaultValue Int where defaultValue = 0
 --	mappend (Node a as) (Node b bs) = Node a (as ++ [Leaf b] ++ bs)
 
 
+data Graph a = Graph a [Edge a]
+data Edge a = Edge a a
+
 
 data Tree a = Tree a [Tree a] deriving (Show)
+
+instance (Eq a) => Eq (Tree a) where
+	(Tree x xs) == (Tree y ys) = x == y && xs `setEquals` ys
+
+setEquals :: (Eq a) =>[a] -> [a] -> Bool
+setEquals [] []  = True
+setEquals _ [] = False
+setEquals [] _ = False
+setEquals (x:xs) ys
+	| x `elem` ys = xs `setEquals` (ys `except'` x)
+	| otherwise = False
+	where
+		as `except'` a = filter (/=a) as
+
 
 instance Functor (Tree) where
     fmap f (Tree t []) = Tree (f t) []
@@ -64,14 +82,16 @@ foldTrees f (Tree x xs : ts) = f x `mappend` foldTrees f xs `mappend` foldTrees 
 
 
 -- not complete!
-instance (Monoid a, HasDefaultValue a) => Monoid (Tree a) where -- for mconcat [Tree]
+instance (Monoid a, HasDefaultValue a, Eq a) => Monoid (Tree a) where -- for mconcat [Tree]
 	mempty = Tree mempty []
-	mappend ta@(Tree a []) tb@(Tree b [])
-		| a == b = Tree a []
-		| otherwise = Tree defaultValue [ta, tb]
-	mappend (Tree a as) (Tree b [])
-		| a == b = Tree a as
-		| otherwise = Tree a[] --]mconcat (b:as))
+	mappend t1 t2 = sameOrNext (t1 `addTree` t2) (t2 `addTree` t1) where
+		sameOrNext a b = if a == t1 then b else a
+	--mappend ta@(Tree a []) tb@(Tree b [])
+	--	| a == b = Tree a []
+	--	| otherwise = Tree defaultValue [ta, tb]
+	--mappend (Tree a as) (Tree b [])
+	--	| a == b = Tree a as
+	--	| otherwise = Tree a[] --]mconcat (b:as))
 
 
 addChild :: (HasDefaultValue a) => a -> a -> Tree a -> Tree a
@@ -108,6 +128,8 @@ main = do
 	print $ tree `addTree` tree2	
 	print $ foldMap (:[]) tree
 	print $ foldMap (:"*") tree
+
+	print $ tree == tree
 
 	--let tree3 = Tree "" [Tree "A" [], Tree "B" [], Tree "C" [Tree "E" [], Tree "F" []]]
 	--let tree4 = Tree "" [Tree "C" [], Tree "D" []]
