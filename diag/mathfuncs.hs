@@ -56,7 +56,7 @@ plot :: ((Double,Double) -> (Double,Double)) -> Dia -> (Dia -> Dia) -> [(Double,
 plot dataToFrac shape lineStyle ps =
     let scalify (x,y) = (x*w,y*h)
         ps' = map (p2 . scalify . dataToFrac) ps
-    in (stroke $ fromVertices ps') # lineStyle
+    in stroke (fromVertices ps') # lineStyle
          `beneath` mconcat [ shape # moveTo p | p <- ps' ]
 
 
@@ -72,7 +72,7 @@ legend styles labels = centerXY $
 	vcat' with {_sep=0.15} $
       map (\(l,s) -> littleLine s ||| strutX 0.4 ||| text l # alignL)
         (zip labels (styles ++ plotStyles))
-	where littleLine (d,l) = (stroke $ fromVertices [ 0^&0, 1^&0 ]) # l
+	where littleLine (d,l) = (stroke (fromVertices [ 0^&0, 1^&0 ]) # l)
                            <> d # moveTo (0.5^&0)
 
 
@@ -121,7 +121,7 @@ combineStyles (d,Fill f) c l =
 
 dotStyles :: [DotStyle]
 dotStyles = cycle $
-    let shapes = map (stroke)
+    let shapes = map stroke
            [ circle 0.07
            , square 0.1
            , eqTriangle 0.1
@@ -136,8 +136,8 @@ dotStyles = cycle $
 --Some custom shapes.
 
 cross :: Double -> Path R2
-cross x = fromVertices [ x^&(-x) , ((-x)^&x) ]
-          <> fromVertices [ x^&x , ((-x)^&(-x)) ]
+cross x = fromVertices [ x^&(-x) , (-x)^&x ]
+          <> fromVertices [ x^&x , (-x)^&(-x) ]
 
 plus :: Double -> Path R2
 plus x = cross x # rotate (45::Deg)
@@ -146,7 +146,7 @@ plus x = cross x # rotate (45::Deg)
 --The colour styles.
 
 colourStyles :: [Colour Double]
-colourStyles = cycle $ [ red, green, blue, brown ]
+colourStyles = cycle [ red, green, blue, brown ]
 
 
 --The line styles.

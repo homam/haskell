@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 import Diagrams.Prelude
 import Diagrams.Backend.SVG
 import Graphics.SVGFonts.ReadFont
@@ -55,13 +57,24 @@ h = 7
 w = 7
 
 
+trials1 = 1000
+success1 = 0.04
+
+trials2 = 500
+success2 = 0.08
+
+variance p n = p * (1 - p) * n
+mean p n = p * n
+
 
 chart :: [Points] -> [(Dia, Dia -> Dia)] -> [Double] -> [Double] -> Dia
 chart series styles xs ys = mconcat
 	[ 
     plotMany styles series dataToFrac -- data series
   , square 1 # moveTo (w^&h)
-  , plotSquareAtCenter dataToFrac
+  -- , histogram (map (cdf' 0.0 0.2) xseries) (fcA (blue `withOpacity` 0.5)) dataToFrac
+  -- , histogram (map (cdf' 0.4 0.3) xseries) (fcA (yellow `withOpacity` 0.5)) dataToFrac
+  , histogram (map (cdf' 0.5 0.1) xseries) (fcA (yellow `withOpacity` 0.5)) dataToFrac
 	, horizticks (map (\x -> ((x-minx)/xrange, showFloor x)) xs) -- h axis
 	, vertticks  (map (\y -> ((y-miny)/yrange, showFloor y)) ys) -- v axis
 	, box -- outer box
@@ -78,16 +91,17 @@ chart series styles xs ys = mconcat
 
 
 
-plotSquareAtCenter :: ((Double,Double) -> (Double,Double)) -> Dia
-plotSquareAtCenter dataToFrac = 
-  mconcat (map rectg xys)
+-- histogram :: HasStyle a => [(Double,Double)] -> (a -> a)  -> ((Double,Double) -> (Double,Double)) -> Dia
+histogram :: (Renderable (Path R2) b, Monoid a) =>
+  [(Double,Double)] -> (Diagram b R2 -> a) -> ((Double,Double) -> (Double,Double)) -> a
+histogram series styles dataToFrac = 
+  mconcat (map rectg series)
   where
     scalify (x,y) = (x*w,y*h)
     psf = (p2 . scalify . dataToFrac)
     dx = 0.1
     rect' h = map psf [(0,0),(dx, 0),(dx,h),(0,h)]
-    xys = map (cdf' 0.0 0.2) xseries
-    rectg (x,y) = ((strokeLoop . closeLine . fromVertices) (rect' y)) # moveTo (psf ((x-dx/2)^&0)) # fcA (blue `withOpacity` 0.5)
+    rectg (x,y) = ((strokeLoop . closeLine . fromVertices) (rect' y)) # moveTo (psf ((x-dx/2)^&0)) # styles -- fcA (blue `withOpacity` 0.5)
 
 
 

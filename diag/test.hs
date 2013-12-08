@@ -35,6 +35,7 @@ tick v =
 	===
 	(rect 0.1 0.5 # fc black)
 
+func x = 2*x
 
 -- drawRangeRect is indipendent of position
 drawRangeRect :: Double -> String -> Double -> QDiagram SVG R2 Any 
