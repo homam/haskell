@@ -66,9 +66,19 @@ y''' s n x = 1 / fromIntegral (down `div` up)  where -- `div` down where
 
 conf n a b = ( sum [ abs ((y''' a n i) - (y''' b n i)) | i <- [0..n]] ) / 2
 
-result n a b = (a' / n', b' / n' , conf n a b) where
-	[a', b', n'] = fromIntegral <$> [a,b,n]
+result (na, a) (nb, b) = (aConv, bConv, diff, conf (floor n) (floor a'') (floor b'')) where
+	[a', b', na', nb'] = fromIntegral <$> [a,b,na,nb]
+	n = (max na' nb')
+	ra = n / na'
+	rb = n / nb'
+	a'' = a' * ra
+	b'' = b' * rb
+	aConv = a' / na'
+	bConv = b' / nb'
+	diff = (abs $ aConv - bConv) / (min aConv bConv)
 	
+
+
 
 
 y'''' s n x =  (fromIntegral up) / (fromIntegral down) where -- (down `div` up)  where -- 1 / fromIntegral (down `div` up)  where -- `div` down where
