@@ -1,6 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
 
-import Data.Number.CReal
 import Control.Applicative
 
 fact 0 = 1
