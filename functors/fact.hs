@@ -67,7 +67,7 @@ conf n a b = ( sum [ abs ((y''' a n i) - (y''' b n i)) | i <- [0..n]] ) / 2
 
 result (na, a) (nb, b) = (aConv, bConv, diff, conf (floor n) (floor a'') (floor b'')) where
 	[a', b', na', nb'] = fromIntegral <$> [a,b,na,nb]
-	n = (max na' nb')
+	n = max na' nb'
 	ra = n / na'
 	rb = n / nb'
 	a'' = a' * ra
@@ -76,6 +76,41 @@ result (na, a) (nb, b) = (aConv, bConv, diff, conf (floor n) (floor a'') (floor 
 	bConv = b' / nb'
 	diff = (abs $ aConv - bConv) / (min aConv bConv)
 	
+
+
+
+
+
+binomialNormalConf n a b =  ( sum [ abs ((binomialNormal a' n' (fromIntegral i)) - (binomialNormal b' n' (fromIntegral i))) | i <- [0..n]] ) / 2
+	where
+		[n', a', b'] = fromIntegral <$> [n, a, b]
+
+binomialResult (na, a) (nb, b) = (aConv, bConv, diff, binomialNormalConf (floor n) (floor a'') (floor b'')) where
+	[a', b', na', nb'] = fromIntegral <$> [a,b,na,nb]
+	n = max na' nb'
+	ra = n / na'
+	rb = n / nb'
+	a'' = a' * ra
+	b'' = b' * rb
+	aConv = a' / na'
+	bConv = b' / nb'
+	diff = (abs $ aConv - bConv) / (min aConv bConv)
+
+
+
+normal sigma mu x = c * exp(eup / edown) where
+	c = 1/(sigma*sqrt(2 * pi))
+	eup = (x - mu)**2
+	edown = -2 * (sigma**2)
+
+binomialNormal s n = normal sigma mu where
+	[n', s'] = fromIntegral <$> [n, s]
+	p = s'/n'
+	mu = n' * p
+	sigma = sqrt $ n' * p * (1 - p)
+
+
+
 
 
 
