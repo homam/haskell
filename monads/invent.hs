@@ -35,3 +35,4 @@ main = do
 	print $ dbind double' . dbind square' $ dunit 5
 	print $ (dbind square' . double') 6
 	print $ dlift (\x -> x * x * x) 5
+	print $ double' |*| square' |*| double' $ 5
