@@ -5,12 +5,22 @@ newtype Kleisli m a b = Kleisli { runKleisli :: a -> m b }
 
 
 class Arrow arr where
+	
 	arr :: (a -> b) -> arr a b
+	
 	(>>>) :: arr a b -> arr b c -> arr a c
+
 	(***) :: arr b c -> arr b' c' -> arr (b,b') (c,c')
+	f *** g = first f >>> second g
+
 	(&&&) :: arr b c -> arr b c' -> arr b (c,c')
 	f &&& g = arr (\x->(x,x)) >>> (f *** g)
+	
 	first :: arr b c -> arr (b, d) (c, d) -- == first f = f *** arr id
+	
+	second :: arr b c -> arr (d, b) (d, c)
+	second f = arr swap >>> first f >>> arr swap where
+		swap (x, y) = (y, x)
 
 	--f &&& g = arr (\b -> (b,b)) >>> f *** g
 
